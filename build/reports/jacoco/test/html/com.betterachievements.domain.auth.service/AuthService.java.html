@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">better-achievements</a> &gt; <a href="index.source.html" class="el_package">com.betterachievements.domain.auth.service</a> &gt; <span class="el_source">AuthService.java</span></div><h1>AuthService.java</h1><pre class="source lang-java linenums">package com.betterachievements.domain.auth.service;
+
+import com.betterachievements.domain.auth.dto.request.RegisterRequest;
+import com.betterachievements.domain.auth.model.UserAuth;
+import com.betterachievements.security.PasswordEncoder;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+
+@ApplicationScoped
+@RequiredArgsConstructor(onConstructor_ = @Inject)
+public class AuthService {
+    private final PasswordEncoder passwordEncoder;
+    private final UserAuthService userAuthService;
+    private final EmailVerificationService emailVerificationService;
+
+    @Transactional
+    public String register(RegisterRequest registerRequest) {
+<span class="fc" id="L20">        String passwordHash = passwordEncoder.hashPassword(registerRequest.password());</span>
+<span class="fc" id="L21">        UserAuth userAuth = new UserAuth(registerRequest.email(), passwordHash);</span>
+<span class="fc" id="L22">        UserAuth savedUser = userAuthService.save(userAuth);</span>
+
+<span class="fc" id="L24">        emailVerificationService.createAndSendVerificationEmail(savedUser);</span>
+<span class="fc" id="L25">        return savedUser.getEmail();</span>
+    }
+
+    @Transactional
+    public void verifyEmail(String token) {
+<span class="nc" id="L30">        emailVerificationService.verifyEmail(token);</span>
+<span class="nc" id="L31">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,112 @@
+plugins {
+    id 'java'
+    id 'io.quarkus'
+    id 'io.freefair.lombok' version '8.14'
+    id 'jacoco'
+    id 'org.sonarqube' version '6.2.0.5505'
+    id 'checkstyle'
+}
+
+jacoco {
+    toolVersion = '0.8.13'
+}
+
+checkstyle {
+    toolVersion = '10.26.1'
+    configFile = file('config/checkstyle/checkstyle.xml')
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+configurations {
+    mockitoAgent
+}
+
+dependencies {
+    implementation 'io.quarkus:quarkus-mailer'
+    implementation 'io.quarkus:quarkus-rest-jackson'
+    implementation 'io.quarkus:quarkus-hibernate-validator'
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    implementation 'io.quarkus:quarkus-arc'
+    implementation 'io.quarkus:quarkus-rest'
+    implementation 'io.quarkus:quarkus-smallrye-jwt'
+    implementation 'io.quarkus:quarkus-smallrye-jwt-build'
+    implementation 'io.quarkus:quarkus-hibernate-orm'
+    implementation 'io.quarkus:quarkus-jdbc-postgresql'
+    implementation 'jakarta.data:jakarta.data-api:1.0.1'
+    implementation 'com.password4j:password4j:1.8.4'
+    implementation 'org.mapstruct:mapstruct:1.6.3'
+
+    testImplementation 'io.quarkus:quarkus-junit5'
+    testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'org.mockito:mockito-core:5.18.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.18.0'
+    testImplementation 'org.assertj:assertj-core:4.0.0-M1'
+
+    mockitoAgent("org.mockito:mockito-core:5.18.0") {
+        transitive = false
+    }
+
+    annotationProcessor enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    annotationProcessor 'org.hibernate.orm:hibernate-jpamodelgen'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+}
+
+group = 'com.better-achievements'
+version = '1.0.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+test {
+    systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+    jvmArgs += [
+            "-javaagent:${configurations.mockitoAgent.asPath}"
+    ]
+    finalizedBy jacocoTestReport
+}
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+    }
+}
+
+tasks.register('checkstyle') {
+    dependsOn(
+            tasks.named('checkstyleMain'),
+            tasks.named('checkstyleTest'),
+            tasks.named('checkstyleNativeTest')
+    )
+}
+
+tasks.named('compileJava') {
+    dependsOn tasks.named('compileQuarkusGeneratedSourcesJava')
+}
+
+tasks.register('setup', Exec) {
+    group = "build setup"
+    description = "set up local development environment"
+
+    environment("DB_USER", "dbuser")
+    environment("DB_PASSWORD", "dbpassword")
+    commandLine("docker-compose", "up", "-d")
+}
+
+

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserAuth.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">better-achievements</a> &gt; <a href="index.source.html" class="el_package">com.betterachievements.domain.auth.model</a> &gt; <span class="el_source">UserAuth.java</span></div><h1>UserAuth.java</h1><pre class="source lang-java linenums">package com.betterachievements.domain.auth.model;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.time.Instant;
+import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+@Entity
+@Table(name = &quot;user_auth&quot;)
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class UserAuth {
+
+<span class="fc" id="L24">    public UserAuth(String email, String passwordHash) {</span>
+<span class="fc" id="L25">        this.email = email;</span>
+<span class="fc" id="L26">        this.passwordHash = passwordHash;</span>
+<span class="fc" id="L27">        this.emailVerified = false;</span>
+<span class="fc" id="L28">    }</span>
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = &quot;id&quot;, columnDefinition = &quot;uuid&quot;, unique = true, nullable = false, updatable = false)
+    private UUID id;
+
+    @Column(name = &quot;email&quot;, columnDefinition = &quot;varchar(256)&quot;, unique = true, nullable = false)
+    private String email;
+
+    @Column(name = &quot;password_hash&quot;, columnDefinition = &quot;varchar(256)&quot;, nullable = false)
+    private String passwordHash;
+
+    @Column(name = &quot;email_verified&quot;, columnDefinition = &quot;boolean&quot;, nullable = false)
+    @Setter
+    private boolean emailVerified;
+
+    @CreationTimestamp
+    @Column(name = &quot;created_at&quot;, columnDefinition = &quot;timestamp&quot;, nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @UpdateTimestamp
+    @Column(name = &quot;updated_at&quot;, columnDefinition = &quot;timestamp&quot;, nullable = false)
+    private Instant updatedAt;
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

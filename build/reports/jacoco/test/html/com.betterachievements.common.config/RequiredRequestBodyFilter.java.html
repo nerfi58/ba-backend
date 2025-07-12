@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RequiredRequestBodyFilter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">better-achievements</a> &gt; <a href="index.source.html" class="el_package">com.betterachievements.common.config</a> &gt; <span class="el_source">RequiredRequestBodyFilter.java</span></div><h1>RequiredRequestBodyFilter.java</h1><pre class="source lang-java linenums">package com.betterachievements.common.config;
+
+import com.betterachievements.common.exception.MissingRequestBodyException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.ws.rs.CookieParam;
+import jakarta.ws.rs.HeaderParam;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.container.ResourceInfo;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.ext.Provider;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
+@Provider
+public class RequiredRequestBodyFilter implements ContainerRequestFilter {
+
+    private final ObjectMapper objectMapper;
+    private final ResourceInfo resourceInfo;
+
+<span class="nc" id="L27">    public RequiredRequestBodyFilter(@Context ResourceInfo resourceInfo) {</span>
+<span class="nc" id="L28">        this.resourceInfo = resourceInfo;</span>
+<span class="nc" id="L29">        this.objectMapper = new ObjectMapper();</span>
+<span class="nc" id="L30">    }</span>
+
+    @Override
+    public void filter(ContainerRequestContext requestContext) throws IOException {
+<span class="nc" id="L34">        System.out.println();</span>
+<span class="nc" id="L35">        Method method = resourceInfo.getResourceMethod();</span>
+<span class="nc bnc" id="L36" title="All 4 branches missed.">        if (method == null || !hasBodyParameter(method)) {</span>
+<span class="nc" id="L37">            return;</span>
+        }
+
+<span class="nc" id="L40">        byte[] bodyBytes = requestContext.getEntityStream().readAllBytes();</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">        if (isBodyEmpty(bodyBytes)) {</span>
+<span class="nc" id="L42">            throw new MissingRequestBodyException();</span>
+        }
+
+<span class="nc" id="L45">        requestContext.setEntityStream(new ByteArrayInputStream(bodyBytes));</span>
+<span class="nc" id="L46">    }</span>
+
+    private boolean hasBodyParameter(Method method) {
+<span class="nc" id="L49">        return Arrays.stream(method.getParameters())</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">                .anyMatch(parameter -&gt; !parameter.isAnnotationPresent(QueryParam.class)</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">                                       &amp;&amp; !parameter.isAnnotationPresent(PathParam.class)</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">                                       &amp;&amp; !parameter.isAnnotationPresent(HeaderParam.class)</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">                                       &amp;&amp; !parameter.isAnnotationPresent(CookieParam.class));</span>
+    }
+
+    private boolean isBodyEmpty(byte[] bodyBytes) throws IOException {
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        if (bodyBytes.length == 0) {</span>
+<span class="nc" id="L58">            return true;</span>
+        }
+
+<span class="nc" id="L61">        String bodyString = new String(bodyBytes, StandardCharsets.UTF_8);</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (bodyString.trim().isEmpty()) {</span>
+<span class="nc" id="L63">            return true;</span>
+        }
+
+<span class="nc" id="L66">        JsonNode jsonNode = objectMapper.readTree(bodyBytes);</span>
+<span class="nc bnc" id="L67" title="All 6 branches missed.">        return jsonNode == null || jsonNode.isNull() || jsonNode.isEmpty();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

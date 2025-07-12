@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.betterachievements.domain.auth.service.AuthServiceTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-07-12T01:48:46.538Z" hostname="DESKTOP-9I8QGG2" time="0.908">
+  <properties/>
+  <testcase name="shouldRegisterUser()" classname="com.betterachievements.domain.auth.service.AuthServiceTest" time="0.908"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

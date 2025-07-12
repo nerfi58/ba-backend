@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: ba-postgres
+    environment:
+      POSTGRES_DB: badb
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+
+  mailhog:
+    image: axllent/mailpit:latest
+    container_name: ba-mailpit
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI

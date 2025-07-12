@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ErrorCode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">better-achievements</a> &gt; <a href="index.source.html" class="el_package">com.betterachievements.common.exception</a> &gt; <span class="el_source">ErrorCode.java</span></div><h1>ErrorCode.java</h1><pre class="source lang-java linenums">package com.betterachievements.common.exception;
+
+import jakarta.ws.rs.core.Response;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+<span class="fc" id="L7">@Getter</span>
+@RequiredArgsConstructor
+public enum ErrorCode {
+    // AUTH
+<span class="fc" id="L11">    EMAIL_ALREADY_IN_USE(&quot;Email {0} is already in use.&quot;, Response.Status.CONFLICT),</span>
+<span class="fc" id="L12">    EMAIL_VERIFICATION_TOKEN_NOT_FOUND(&quot;Token {0} could not be found.&quot;, Response.Status.NOT_FOUND),</span>
+<span class="fc" id="L13">    EMAIL_ALREADY_VERIFIED(&quot;Email {0} is already verified&quot;, Response.Status.CONFLICT),</span>
+<span class="fc" id="L14">    EMAIL_VERIFICATION_TOKEN_EXPIRED(&quot;Token {0} has expired.&quot;, Response.Status.GONE),</span>
+
+    // VALIDATION
+<span class="fc" id="L17">    MISSING_REQUEST_BODY(&quot;Request body is required.&quot;, Response.Status.BAD_REQUEST),</span>
+<span class="fc" id="L18">    VALIDATION_BODY_ERROR(&quot;Request body contains invalid data.&quot;, ExtendedHttpStatus.UNPROCESSABLE_ENTITY),</span>
+<span class="fc" id="L19">    VALIDATION_PARAMETER_ERROR(&quot;Request contains one or more invalid parameters.&quot;, Response.Status.BAD_REQUEST),</span>
+<span class="fc" id="L20">    INVALID_JSON_FORMAT(&quot;Request body contains invalid JSON.&quot;, Response.Status.BAD_REQUEST),</span>
+
+    // OTHER
+<span class="fc" id="L23">    METHOD_NOT_ALLOWED(&quot;This method is not allowed for the requested URL.&quot;, Response.Status.METHOD_NOT_ALLOWED),</span>
+<span class="fc" id="L24">    URL_NOT_FOUND(&quot;The requested URL does not exist.&quot;, Response.Status.NOT_FOUND),</span>
+<span class="fc" id="L25">    UNKNOWN(&quot;Something went wrong. Please try again later or contact us if the issue persists.&quot;, Response.Status.INTERNAL_SERVER_ERROR);</span>
+
+    private final String message;
+    private final Response.StatusType httpStatus;
+
+    public String getCode() {
+<span class="nc" id="L31">        return this.name();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.betterachievements.security.JwtTokenGeneratorTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-07-12T01:48:47.671Z" hostname="DESKTOP-9I8QGG2" time="0.216">
+  <properties/>
+  <testcase name="shouldGenerateValidJwtToken()" classname="com.betterachievements.security.JwtTokenGeneratorTest" time="0.216"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

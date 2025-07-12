@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">better-achievements</a> &gt; <a href="index.source.html" class="el_package">com.betterachievements.common.exception</a> &gt; <span class="el_source">GlobalExceptionHandler.java</span></div><h1>GlobalExceptionHandler.java</h1><pre class="source lang-java linenums">package com.betterachievements.common.exception;
+
+import com.betterachievements.common.dto.ErrorResponse;
+import com.fasterxml.jackson.core.JsonParseException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.ws.rs.NotAllowedException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Request;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
+import java.text.MessageFormat;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+@Produces(MediaType.APPLICATION_JSON)
+@ApplicationScoped
+public class GlobalExceptionHandler {
+
+<span class="nc" id="L32">    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);</span>
+
+    private final UriInfo uriInfo;
+    private final Clock clock;
+
+    @Inject
+<span class="nc" id="L38">    public GlobalExceptionHandler(@Context UriInfo uriInfo, Clock clock) {</span>
+<span class="nc" id="L39">        this.uriInfo = uriInfo;</span>
+<span class="nc" id="L40">        this.clock = clock;</span>
+
+<span class="nc" id="L42">    }</span>
+
+    @ServerExceptionMapper
+    public Response handleAppException(BetterAchievementsException exception, Request request) {
+<span class="nc" id="L46">        ErrorCode errorCode = exception.getErrorCode();</span>
+<span class="nc" id="L47">        String message = MessageFormat.format(exception.getMessage(), (Object[]) exception.getParameters());</span>
+<span class="nc" id="L48">        ErrorResponse errorResponse = buildErrorResponse(errorCode, request, message, Collections.emptySet());</span>
+
+<span class="nc" id="L50">        return Response.status(errorCode.getHttpStatus()).entity(errorResponse).build();</span>
+    }
+
+    @ServerExceptionMapper
+    public Response handleConstraintViolation(ConstraintViolationException exception, Request request) {
+<span class="nc" id="L55">        Set&lt;ConstraintViolation&lt;?&gt;&gt; violations = exception.getConstraintViolations();</span>
+
+<span class="nc" id="L57">        Set&lt;ConstraintViolation&lt;?&gt;&gt; parameterViolations = violations.stream()</span>
+<span class="nc" id="L58">                .filter(this::isParameterViolation)</span>
+<span class="nc" id="L59">                .collect(Collectors.toSet());</span>
+
+<span class="nc" id="L61">        Set&lt;ConstraintViolation&lt;?&gt;&gt; bodyViolations = violations.stream()</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">                .filter(v -&gt; !isParameterViolation(v))</span>
+<span class="nc" id="L63">                .collect(Collectors.toSet());</span>
+
+        ErrorCode errorCode;
+        Set&lt;ConstraintViolation&lt;?&gt;&gt; violationsToReport;
+
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (!parameterViolations.isEmpty()) {</span>
+<span class="nc" id="L69">            errorCode = ErrorCode.VALIDATION_PARAMETER_ERROR;</span>
+<span class="nc" id="L70">            violationsToReport = parameterViolations;</span>
+        } else {
+<span class="nc" id="L72">            errorCode = ErrorCode.VALIDATION_BODY_ERROR;</span>
+<span class="nc" id="L73">            violationsToReport = bodyViolations;</span>
+        }
+
+<span class="nc" id="L76">        ErrorResponse errorResponse = buildErrorResponse(</span>
+                errorCode,
+                request,
+<span class="nc" id="L79">                errorCode.getMessage(),</span>
+<span class="nc" id="L80">                extractConstraintViolations(violationsToReport)</span>
+        );
+<span class="nc" id="L82">        return Response.status(errorCode.getHttpStatus()).entity(errorResponse).build();</span>
+    }
+
+    @ServerExceptionMapper
+    public Response handleJsonParseException(JsonParseException exception, Request request) {
+<span class="nc" id="L87">        ErrorCode errorCode = ErrorCode.INVALID_JSON_FORMAT;</span>
+<span class="nc" id="L88">        ErrorResponse errorResponse = buildErrorResponse(errorCode, request, errorCode.getMessage(), Collections.emptySet());</span>
+<span class="nc" id="L89">        return Response.status(errorCode.getHttpStatus()).entity(errorResponse).build();</span>
+    }
+
+    @ServerExceptionMapper
+    public Response handleMethodNotAllowedException(NotAllowedException exception, Request request) {
+<span class="nc" id="L94">        ErrorCode errorCode = ErrorCode.METHOD_NOT_ALLOWED;</span>
+<span class="nc" id="L95">        ErrorResponse errorResponse = buildErrorResponse(errorCode, request, errorCode.getMessage(), Collections.emptySet());</span>
+<span class="nc" id="L96">        return Response.status(errorCode.getHttpStatus()).entity(errorResponse).build();</span>
+    }
+
+    @ServerExceptionMapper
+    public Response handleUrlNotFoundException(NotFoundException exception, Request request) {
+<span class="nc" id="L101">        ErrorCode errorCode = ErrorCode.URL_NOT_FOUND;</span>
+<span class="nc" id="L102">        ErrorResponse errorResponse = buildErrorResponse(errorCode, request, errorCode.getMessage(), Collections.emptySet());</span>
+<span class="nc" id="L103">        return Response.status(errorCode.getHttpStatus()).entity(errorResponse).build();</span>
+    }
+
+    @ServerExceptionMapper
+    public Response handleOtherExceptions(Exception exception, Request request) {
+<span class="nc" id="L108">        LOGGER.error(&quot;{}: {}&quot;, exception.getClass().getName(), exception.getMessage());</span>
+<span class="nc" id="L109">        ErrorCode errorCode = ErrorCode.UNKNOWN;</span>
+<span class="nc" id="L110">        ErrorResponse errorResponse = buildErrorResponse(errorCode, request, errorCode.getMessage(), Collections.emptySet());</span>
+<span class="nc" id="L111">        return Response.status(errorCode.getHttpStatus()).entity(errorResponse).build();</span>
+    }
+
+    private Set&lt;String&gt; extractConstraintViolations(Set&lt;ConstraintViolation&lt;?&gt;&gt; violations) {
+<span class="nc" id="L115">        return violations.stream().map(violation -&gt; {</span>
+<span class="nc" id="L116">            String fullPath = violation.getPropertyPath().toString();</span>
+<span class="nc" id="L117">            String[] parts = fullPath.split(&quot;\\.&quot;);</span>
+<span class="nc" id="L118">            String propertyName = parts[parts.length - 1];</span>
+<span class="nc" id="L119">            return propertyName + &quot;: &quot; + violation.getMessage();</span>
+<span class="nc" id="L120">        }).collect(Collectors.toSet());</span>
+    }
+
+    private ErrorResponse buildErrorResponse(ErrorCode errorCode, Request request, String message, Set&lt;String&gt; violations) {
+<span class="nc" id="L124">        return new ErrorResponse(</span>
+<span class="nc" id="L125">                Instant.now(clock),</span>
+<span class="nc" id="L126">                errorCode.getCode(),</span>
+                message,
+<span class="nc" id="L128">                errorCode.getHttpStatus().getStatusCode(),</span>
+<span class="nc" id="L129">                errorCode.getHttpStatus().getReasonPhrase(),</span>
+<span class="nc" id="L130">                request.getMethod(),</span>
+<span class="nc" id="L131">                uriInfo.getPath(),</span>
+<span class="nc" id="L132">                uriInfo.getQueryParameters(),</span>
+<span class="nc" id="L133">                uriInfo.getPathParameters(),</span>
+                violations
+        );
+    }
+
+    private boolean isParameterViolation(ConstraintViolation&lt;?&gt; violation) {
+<span class="nc" id="L139">        String propertyPath = violation.getPropertyPath().toString();</span>
+
+<span class="nc bnc" id="L141" title="All 4 branches missed.">        return propertyPath.contains(&quot;arg&quot;) || propertyPath.matches(&quot;\\w+\\.\\w+&quot;);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

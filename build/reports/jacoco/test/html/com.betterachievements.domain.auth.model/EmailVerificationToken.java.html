@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmailVerificationToken.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">better-achievements</a> &gt; <a href="index.source.html" class="el_package">com.betterachievements.domain.auth.model</a> &gt; <span class="el_source">EmailVerificationToken.java</span></div><h1>EmailVerificationToken.java</h1><pre class="source lang-java linenums">package com.betterachievements.domain.auth.model;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import java.time.Instant;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = &quot;email_verification_token&quot;)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+public class EmailVerificationToken {
+
+<span class="fc" id="L23">    public EmailVerificationToken(String token, UserAuth userAuth, Instant expiresAt) {</span>
+<span class="fc" id="L24">        this.token = token;</span>
+<span class="fc" id="L25">        this.userAuth = userAuth;</span>
+<span class="fc" id="L26">        this.expiresAt = expiresAt;</span>
+<span class="fc" id="L27">    }</span>
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = &quot;id&quot;, columnDefinition = &quot;bigint&quot;, unique = true, nullable = false, updatable = false)
+    private long id;
+
+    @Column(name = &quot;token&quot;, columnDefinition = &quot;varchar(32)&quot;, unique = true, nullable = false, updatable = false)
+    private String token;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;user_id&quot;, columnDefinition = &quot;uuid&quot;, nullable = false, updatable = false)
+    private UserAuth userAuth;
+
+    @Column(name = &quot;expires_at&quot;, columnDefinition = &quot;timestamp&quot;, nullable = false, updatable = false)
+    private Instant expiresAt;
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

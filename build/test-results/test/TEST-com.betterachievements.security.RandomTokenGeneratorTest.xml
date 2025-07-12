@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.betterachievements.security.RandomTokenGeneratorTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-07-12T01:48:48.787Z" hostname="DESKTOP-9I8QGG2" time="0.071">
+  <properties/>
+  <testcase name="shouldGenerateTokenWithCorrectLength()" classname="com.betterachievements.security.RandomTokenGeneratorTest" time="0.001"/>
+  <testcase name="shouldGenerateUniqueTokens()" classname="com.betterachievements.security.RandomTokenGeneratorTest" time="0.069"/>
+  <testcase name="shouldGenerateNotNullToken()" classname="com.betterachievements.security.RandomTokenGeneratorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
