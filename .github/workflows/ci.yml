@@ -39,7 +39,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          ./gradlew sonarqube \
+          ./gradlew sonar \
             -Dsonar.projectKey=nerfi58_ba-backend \
             -Dsonar.organization=nerfi58 \
             -Dsonar.host.url=https://sonarcloud.io \
