@@ -31,7 +31,6 @@ public class RequiredRequestBodyFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
-        System.out.println();
         Method method = resourceInfo.getResourceMethod();
         if (method == null || !hasBodyParameter(method)) {
             return;
